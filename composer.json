@@ -1,5 +1,5 @@
 {
-	"name": "silverstripe/payment",
+	"name": "silverstripe-ocular/payment",
 	"description": "SilverStripe Payment Module",
 	"type": "silverstripe-module",
 	"license": "BSD-3-Clause",
