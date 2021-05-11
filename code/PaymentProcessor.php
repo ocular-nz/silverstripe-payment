@@ -1,5 +1,15 @@
 <?php
 
+use SilverStripe\Control\Controller;
+use SilverStripe\Control\Director;
+use SilverStripe\Control\Session;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\NumericField;
+use SilverStripe\Forms\RequiredFields;
+use SilverStripe\Forms\TextField;
+
 /**
  * Default class for a number of payment controllers/processors.
  * This acts as a generic controller for all payment methods.
@@ -141,7 +151,7 @@ class PaymentProcessor extends Controller {
 		$fieldList = new FieldList();
 
 		$fieldList->push(new NumericField('Amount', 'Amount', ''));
-		$fieldList->push(new DropDownField('Currency', 'Select currency :', $this->gateway->getSupportedCurrencies()));
+		$fieldList->push(new DropdownField('Currency', 'Select currency :', $this->gateway->getSupportedCurrencies()));
 
 		return $fieldList;
 	}
@@ -192,7 +202,7 @@ class PaymentProcessor_MerchantHosted extends PaymentProcessor {
 		$fieldList->push(new DropDownField('CreditCardType', 'Select Credit Card Type :', $this->gateway->getSupportedCardTypes()));
 		$fieldList->push(new TextField('FirstName', 'First Name:'));
 		$fieldList->push(new TextField('LastName', 'Last Name:'));
-		$fieldList->push(new CreditCardField('CardNumber', 'Credit Card Number:'));
+		$fieldList->push(new TextField('CardNumber', 'Credit Card Number:'));
 		$fieldList->push(new DropDownField('MonthExpiry', 'Expiration Month: ', $months));
 		$fieldList->push(new DropDownField('YearExpiry', 'Expiration Year: ', $years));
 		$fieldList->push(new TextField('Cvc2', 'Credit Card CVN: (3 or 4 digits)', '', 4));

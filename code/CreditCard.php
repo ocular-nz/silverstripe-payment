@@ -1,5 +1,7 @@
 <?php
 
+use SilverStripe\ORM\ValidationResult;
+
 /**
  * Object encapsulating credit card details and validation
  * 
@@ -70,19 +72,19 @@ class CreditCard {
 	 */
 	public function validateEssentialAttributes() {
 		if ($this->firstName === null || $this->firstName == "") {
-			$this->validationResult->error('First name cannot be empty');
+			$this->validationResult->addError('First name cannot be empty');
 		}
 		
 		if ($this->lastName === null || $this->lastName == "") {
-			$this->validationResult->error('Last name cannot be empty');
+			$this->validationResult->addError('Last name cannot be empty');
 		}
 		
 		if (checkdate($this->month, 1, $this->year) === false) {
-			$this->validationResult->error('Expiration date not valid');
+			$this->validationResult->addError('Expiration date not valid');
 		}
 		
 		if ($this->isExpired() === true) {
-			$this->validationResult->error('Expired');
+			$this->validationResult->addError('Expired');
 		}
 	}
 	
@@ -93,11 +95,11 @@ class CreditCard {
 	 */
 	public function validateCardType() {
 		if ($this->type === null || $this->type == "") {
-			$this->validationResult->error('Credit card type is required');
+			$this->validationResult->addError('Credit card type is required');
 		}
 		
 		if (!isset(self::$card_companies[$this->type])) {
-			$this->validationResult->error('Credit card type is invalid');
+			$this->validationResult->addError('Credit card type is invalid');
 		}
 	}
 	
@@ -108,7 +110,7 @@ class CreditCard {
 	 */
 	public function validateCardNumber() {
 		if (strlen($this->number) < 12) {
-			$this->validationResult->error('Card number length is invalid');
+			$this->validationResult->addError('Card number length is invalid');
 		}
 		
 		// Luhn algorithm to check the validity of the card number
@@ -119,7 +121,7 @@ class CreditCard {
 			$sum += $map[$this->number[$last - $i] + ($i & 1) * 10];
 		}
 		if (! ($sum % 10 == 0)) {
-			$this->validationResult->error('Card number is invalid');
+			$this->validationResult->addError('Card number is invalid');
 		}
 	}
 	
