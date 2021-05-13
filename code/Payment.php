@@ -1,6 +1,7 @@
 <?php
 
 use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Member;
 
 /**
  * Model class for Payment
@@ -36,14 +37,14 @@ class Payment extends DataObject {
 	 * PaidBy: Member that processed this payment (optional)
 	 */
 	private static $has_one = array(
-		'PaidBy' => 'Member',
+		'PaidBy' => Member::class,
 	);
 
 	/**
 	 * Errors: Errors returned from payment gateway when processing this payment
 	 */
 	private static $has_many = array(
-		'Errors' => 'Payment_Error',
+		'Errors' => Payment_Error::class,
 	);
 
 	/**
@@ -91,6 +92,6 @@ class Payment_Error extends DataObject {
 	 * Payment: Payment this error is related to
 	 */
 	private static $has_one = array(
-		'Payment' => 'Payment',
+		'Payment' => Payment::class,
 	);
 }
