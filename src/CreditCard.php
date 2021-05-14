@@ -1,5 +1,7 @@
 <?php
 
+namespace Payment;
+
 use SilverStripe\ORM\ValidationResult;
 
 /**

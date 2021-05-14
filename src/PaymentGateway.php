@@ -1,4 +1,7 @@
 <?php
+
+namespace Payment;
+
 /**
  * Parent class for a number of payment gateways
  */

@@ -1,5 +1,7 @@
 <?php
 
+namespace Payment;
+
 /**
  * Helper class for creating payment processors
  */

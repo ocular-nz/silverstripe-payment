@@ -1,5 +1,7 @@
 <?php
 
+namespace Payment;
+
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 
@@ -7,6 +9,8 @@ use SilverStripe\Security\Member;
  * Model class for Payment
  */
 class Payment extends DataObject {
+
+	private static $table_name = 'Payment';
 
 	/* Constants for payment statuses */
 	const SUCCESS = 'Success';
