@@ -83,6 +83,8 @@ class Payment extends DataObject {
  */
 class Payment_Error extends DataObject {
 
+	private static $table_name = 'Payment_Error';
+
 	/**
 	 * ErrorCode: Gateway specific error code
 	 * ErrorMessage: Corresponding error message from the gateway
