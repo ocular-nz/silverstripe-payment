@@ -1,0 +1,7 @@
+---
+Name: payment-legacy
+---
+SilverStripe\ORM\DatabaseAdmin:
+  classname_value_remapping:
+    Payment: Payment\Payment
+    Payment_Error: Payment\Payment_Error
