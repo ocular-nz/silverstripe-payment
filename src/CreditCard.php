@@ -9,8 +9,9 @@ use SilverStripe\ORM\ValidationResult;
  * 
  * @see PaymentGateway::validate()
  */
-class CreditCard {
-	
+class CreditCard
+{
+
 	/**
 	 * The card number patterns for credit card companies
 	 * @var array
@@ -22,7 +23,7 @@ class CreditCard {
 		'american_express' => '/^3[47]\d{13}$/',
 		'diners' => '/^3(0[0-5]|[68]\d)\d{11}$/'
 	);
-	
+
 	/* Credit Card data */
 	public $firstName;
 	public $lastName;
@@ -30,15 +31,16 @@ class CreditCard {
 	public $year;
 	public $type;
 	public $number;
-	
+
 	/**
 	 * A ValidationResult object that stores the validation status and errors
 	 * 
 	 * @var ValidationResult
-	 */ 
+	 */
 	private $validationResult;
-	
-	public function __construct($options) {
+
+	public function __construct($options)
+	{
 		$this->firstName = $options['firstName'];
 		$this->lastName = $options['lastName'];
 		$this->month = $options['month'];
@@ -47,74 +49,79 @@ class CreditCard {
 		$this->number = $options['number'];
 		$this->validationResult = new ValidationResult();
 	}
-	
+
 	/**
 	 * Get the validation result
 	 * 
 	 * @return ValidationResult
 	 */
-	public function getValidationResult() {
+	public function getValidationResult()
+	{
 		return $this->validationResult;
 	}
-	
+
 	/**
 	 * Check if the card is already exprired
 	 */
-	public function isExpired() {
+	public function isExpired()
+	{
 		// last day of the expiration month
-		$expriration = strtotime(date('Y-m-t', mktime(0, 0, 0, $this->month, 1, $this->year)));  
-		
+		$expriration = strtotime(date('Y-m-t', mktime(0, 0, 0, $this->month, 1, $this->year)));
+
 		return (time() >= $expriration);
 	}
-	
+
 	/**
 	 * Validate basic credit card data
 	 * 
 	 * @see CreditCard::validationResult
 	 */
-	public function validateEssentialAttributes() {
+	public function validateEssentialAttributes()
+	{
 		if ($this->firstName === null || $this->firstName == "") {
 			$this->validationResult->addError('First name cannot be empty');
 		}
-		
+
 		if ($this->lastName === null || $this->lastName == "") {
 			$this->validationResult->addError('Last name cannot be empty');
 		}
-		
+
 		if (checkdate($this->month, 1, $this->year) === false) {
 			$this->validationResult->addError('Expiration date not valid');
 		}
-		
+
 		if ($this->isExpired() === true) {
 			$this->validationResult->addError('Expired');
 		}
 	}
-	
+
 	/**
 	 * Validate credit card type
 	 * 
 	 * @see CreditCard::validationResult
 	 */
-	public function validateCardType() {
+	public function validateCardType()
+	{
 		if ($this->type === null || $this->type == "") {
 			$this->validationResult->addError('Credit card type is required');
 		}
-		
+
 		if (!isset(self::$card_companies[$this->type])) {
 			$this->validationResult->addError('Credit card type is invalid');
 		}
 	}
-	
+
 	/**
 	 * Validate credit card number using Luhn algorithm
 	 * 
 	 * @see CreditCard::validationResult
 	 */
-	public function validateCardNumber() {
+	public function validateCardNumber()
+	{
 		if (strlen($this->number) < 12) {
 			$this->validationResult->addError('Card number length is invalid');
 		}
-		
+
 		// Luhn algorithm to check the validity of the card number
 		$map = array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 2, 4, 6, 8, 1, 3, 5, 7, 9);
 		$sum = 0;
@@ -122,21 +129,22 @@ class CreditCard {
 		for ($i = 0; $i <= $last; $i++) {
 			$sum += $map[$this->number[$last - $i] + ($i & 1) * 10];
 		}
-		if (! ($sum % 10 == 0)) {
+		if (!($sum % 10 == 0)) {
 			$this->validationResult->addError('Card number is invalid');
 		}
 	}
-	
+
 	/**
 	 * Validate credit card
 	 * 
 	 * @return ValidationResult
 	 */
-	public function validate() {
+	public function validate()
+	{
 		$this->validateEssentialAttributes();
 		$this->validateCardType();
 		$this->validateCardNumber();
-		
+
 		return $this->validationResult;
 	}
 }

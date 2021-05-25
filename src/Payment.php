@@ -8,7 +8,8 @@ use SilverStripe\Security\Member;
 /**
  * Model class for Payment
  */
-class Payment extends DataObject {
+class Payment extends DataObject
+{
 
 	private static $table_name = 'Payment';
 
@@ -59,7 +60,8 @@ class Payment extends DataObject {
 	 * @param PaymentGateway_Result Result from the payment gateway after processing
 	 * @return Int Payment ID
 	 */
-	public function updateStatus(PaymentGateway_Result $result) {
+	public function updateStatus(PaymentGateway_Result $result)
+	{
 
 		//Use the gateway result to update the payment
 		$this->Status = $result->getStatus();
@@ -81,7 +83,8 @@ class Payment extends DataObject {
 /**
  * Class to represent error returned from payment gateway
  */
-class Payment_Error extends DataObject {
+class Payment_Error extends DataObject
+{
 
 	private static $table_name = 'Payment_Error';
 

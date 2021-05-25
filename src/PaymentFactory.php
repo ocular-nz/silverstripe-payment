@@ -2,19 +2,25 @@
 
 namespace Payment;
 
+use Exception;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Dev\Debug;
+
 /**
  * Helper class for creating payment processors
  */
-class PaymentFactory {
+class PaymentFactory
+{
 
 	/**
 	 * Get the factory config for a particular payment method from YAML file.
 	 *
-	 * @param String methodName
-	 * @return Array|Null Configuration options
+	 * @param string methodName
+	 * @return array|null Configuration options
 	 */
-	public static function get_factory_config($methodName) {
-		$factoryConfig = Config::inst()->get('PaymentFactory', $methodName);
+	public static function get_factory_config($methodName)
+	{
+		$factoryConfig = Config::inst()->get(PaymentFactory::class, $methodName);
 		if ($factoryConfig) {
 			return $factoryConfig;
 		} else {
@@ -26,10 +32,11 @@ class PaymentFactory {
 	 * Get the gateway object that will be used for the given payment method.
 	 * The gateway class is automatically retrieved based on configuration
 	 *
-	 * @param String $methodName
+	 * @param string $methodName
 	 * @return PaymentGateway
 	 */
-	public static function get_gateway($methodName) {
+	public static function get_gateway($methodName)
+	{
 
 		// Get the gateway environment setting
 		$environment = PaymentGateway::get_environment();
@@ -41,9 +48,8 @@ class PaymentFactory {
 
 		if (isset($gatewayClassConfig[$environment])) {
 			$gatewayClass = $gatewayClassConfig[$environment];
-		} 
-		else {
-			switch($environment) {
+		} else {
+			switch ($environment) {
 				case 'live':
 					$gatewayClass = $methodName . 'Gateway_Production';
 					break;
@@ -58,8 +64,7 @@ class PaymentFactory {
 
 		if (class_exists($gatewayClass)) {
 			return new $gatewayClass();
-		} 
-		else {
+		} else {
 			throw new Exception("$gatewayClass class does not exists.");
 		}
 	}
@@ -73,7 +78,8 @@ class PaymentFactory {
 	 * @param String methodName
 	 * @return Payment
 	 */
-	public static function get_payment_model($methodName) {
+	public static function get_payment_model($methodName)
+	{
 
 		// Get the custom payment class configuration.
 		// If not applicable, take the default model
@@ -98,11 +104,12 @@ class PaymentFactory {
 	 * @param String $methodName
 	 * @return PaymentProcessor
 	 */
-	public static function factory($methodName) {
+	public static function factory($methodName)
+	{
 
 		$supported_methods = PaymentProcessor::get_supported_methods();
 
-		if (! in_array($methodName, $supported_methods)) {
+		if (!in_array($methodName, $supported_methods)) {
 			throw new Exception("The method $methodName is not supported");
 		}
 
@@ -119,8 +126,7 @@ class PaymentFactory {
 			$processor->payment = self::get_payment_model($methodName);
 
 			return $processor;
-		} 
-		else {
+		} else {
 			throw new Exception("No processor is defined for the method $methodName");
 		}
 	}

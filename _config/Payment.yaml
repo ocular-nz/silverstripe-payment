@@ -1,6 +1,7 @@
-name: Payment
+---
+Name: Payment
 ---
 
-Director:
+SilverStripe\Control\Director:
   rules:
     'PaymentProcessor_GatewayHosted': 'PaymentProcessor_GatewayHosted'

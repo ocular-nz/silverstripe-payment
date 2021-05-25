@@ -4,6 +4,8 @@ namespace Payment;
 
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Control\Session;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\DropdownField;
@@ -36,7 +38,7 @@ class PaymentProcessor extends Controller {
 	/**
 	 * The gateway object to be injected to this controller
 	 *
-	 * @var PaymentGateway
+	 * @var PaymentGateway $gateway
 	 */
 	public $gateway;
 
@@ -53,7 +55,7 @@ class PaymentProcessor extends Controller {
 	 * @return array
 	 */
 	public static function get_supported_methods() {
-		$methodConfig = Config::inst()->get('PaymentProcessor', 'supported_methods');
+		$methodConfig = Config::inst()->get(PaymentProcessor::class, 'supported_methods');
 		$environment = PaymentGateway::get_environment();
 
 		// Check if all methods are defined in factory
@@ -82,7 +84,7 @@ class PaymentProcessor extends Controller {
 	 * @param String $url
 	 */
 	public function setRedirectURL($url) {
-		Session::set('PostRedirectionURL', $url);
+		$this->getRequest()->getSession()->set('PostRedirectionURL', $url);
 	}
 
 	/**
@@ -91,7 +93,7 @@ class PaymentProcessor extends Controller {
 	 * @return String
 	 */
 	public function getRedirectURL() {
-		return Session::get('PostRedirectionURL');
+		return $this->getRequest()->getSession()->get('PostRedirectionURL');
 	}
 
 	/**
@@ -99,7 +101,7 @@ class PaymentProcessor extends Controller {
 	 */
 	public function doRedirect() {
 		// Put the payment ID in a session
-		Session::set('PaymentID', $this->payment->ID);
+		$this->getRequest()->getSession()->set('PaymentID', $this->payment->ID);
 		$this->extend('onBeforeRedirect');
 		Controller::curr()->redirect($this->getRedirectURL());
 	}
@@ -135,11 +137,11 @@ class PaymentProcessor extends Controller {
 
 		// Validate the payment data
 		$validation = $this->gateway->validate($this->paymentData);
-		if (! $validation->valid()) {
+		if (! $validation->isValid()) {
 			// Use the exception message to identify this is a validation exception
 			// Payment pages can call gateway->getValidationResult() to get all the
 			// validation error messages
-			throw new Exception("Validation Exception");
+			throw new \Exception("Validation Exception");
 		}
 	}
 
@@ -303,7 +305,7 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor {
 	 * 
 	 * The request is passed to the gateway so that it can process the request and use a mechanism to check the status of the payment.
 	 *
-	 * @param SS_HTTPResponse $request
+	 * @param HTTPRequest $request
 	 */
 	public function complete($request) {
 		// Reconstruct the payment object
@@ -325,9 +327,11 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor {
 	 * Process request from the external gateway, this action is usually triggered if the payment was cancelled
 	 * and the user was redirected to the cancelURL.
 	 * 
-	 * @param SS_HTTPResponse $request
+	 * @param HTTPRequest $request
 	 */
 	public function cancel($request) {
+		
+		
 		// Reconstruct the payment object
 		$this->payment = Payment::get()->byID($request->param('OtherID'));
 
