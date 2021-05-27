@@ -4,6 +4,7 @@ namespace Payment;
 
 use Exception;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\Debug;
 
 /**
@@ -63,7 +64,7 @@ class PaymentFactory
 		}
 
 		if (class_exists($gatewayClass)) {
-			return new $gatewayClass();
+			return Injector::inst()->get($gatewayClass);
 		} else {
 			throw new Exception("$gatewayClass class does not exists.");
 		}

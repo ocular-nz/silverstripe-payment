@@ -4,4 +4,4 @@ Name: Payment
 
 SilverStripe\Control\Director:
   rules:
-    'PaymentProcessor_GatewayHosted': 'PaymentProcessor_GatewayHosted'
+    'PaymentProcessor_GatewayHosted': 'Payment\PaymentProcessor_GatewayHosted'

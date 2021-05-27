@@ -8,6 +8,7 @@ use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Control\Session;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\NumericField;
@@ -84,7 +85,7 @@ class PaymentProcessor extends Controller {
 	 * @param String $url
 	 */
 	public function setRedirectURL($url) {
-		$this->getRequest()->getSession()->set('PostRedirectionURL', $url);
+		Injector::inst()->get(HTTPRequest::class)->getSession()->set('PostRedirectionURL', $url);
 	}
 
 	/**
@@ -93,7 +94,7 @@ class PaymentProcessor extends Controller {
 	 * @return String
 	 */
 	public function getRedirectURL() {
-		return $this->getRequest()->getSession()->get('PostRedirectionURL');
+		return Injector::inst()->get(HTTPRequest::class)->getSession()->get('PostRedirectionURL');
 	}
 
 	/**
@@ -101,7 +102,7 @@ class PaymentProcessor extends Controller {
 	 */
 	public function doRedirect() {
 		// Put the payment ID in a session
-		$this->getRequest()->getSession()->set('PaymentID', $this->payment->ID);
+		Injector::inst()->get(HTTPRequest::class)->getSession()->set('PaymentID', $this->payment->ID);
 		$this->extend('onBeforeRedirect');
 		Controller::curr()->redirect($this->getRedirectURL());
 	}
@@ -255,6 +256,8 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor {
 		'cancel'
 	);
 
+	private static $url_segment = 'PaymentProcessor_GatewayHosted';
+
 	/**
 	 * Process a gateway-hosted payment. Users will be redirected to
 	 * the external gateway to enter payment info. Redirect back to
@@ -268,7 +271,7 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor {
 
 		// Set the return link
 		$this->gateway->returnURL = Director::absoluteURL(Controller::join_links(
-				$this->link(),
+				$this->Link(),
 				'complete',
 				$this->methodName,
 				$this->payment->ID
@@ -276,7 +279,7 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor {
 		
 		// Set the cancel link
 		$this->gateway->cancelURL = Director::absoluteURL(Controller::join_links(
-				$this->link(),
+				$this->Link(),
 				'cancel',
 				$this->methodName,
 				$this->payment->ID
