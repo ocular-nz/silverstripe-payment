@@ -20,8 +20,9 @@ use SilverStripe\Forms\TextField;
  * This acts as a generic controller for all payment methods.
  * Override this class if desired to add custom functionalities.
  */
-class PaymentProcessor extends Controller {
-	
+class PaymentProcessor extends Controller
+{
+
 	/**
 	 * The method name of this controller
 	 *
@@ -55,13 +56,14 @@ class PaymentProcessor extends Controller {
 	 *
 	 * @return array
 	 */
-	public static function get_supported_methods() {
+	public static function get_supported_methods()
+	{
 		$methodConfig = Config::inst()->get(PaymentProcessor::class, 'supported_methods');
 		$environment = PaymentGateway::get_environment();
 
 		// Check if all methods are defined in factory
 		foreach ($methodConfig[$environment] as $method) {
-			if (! PaymentFactory::get_factory_config($method)) {
+			if (!PaymentFactory::get_factory_config($method)) {
 				user_error("Method $method not defined in factory", E_USER_ERROR);
 			}
 		}
@@ -75,7 +77,8 @@ class PaymentProcessor extends Controller {
 	 *
 	 * @param String $method
 	 */
-	public function setMethodName($method) {
+	public function setMethodName($method)
+	{
 		$this->methodName = $method;
 	}
 
@@ -84,7 +87,8 @@ class PaymentProcessor extends Controller {
 	 *
 	 * @param String $url
 	 */
-	public function setRedirectURL($url) {
+	public function setRedirectURL($url)
+	{
 		Injector::inst()->get(HTTPRequest::class)->getSession()->set('PostRedirectionURL', $url);
 	}
 
@@ -93,14 +97,16 @@ class PaymentProcessor extends Controller {
 	 *
 	 * @return String
 	 */
-	public function getRedirectURL() {
+	public function getRedirectURL()
+	{
 		return Injector::inst()->get(HTTPRequest::class)->getSession()->get('PostRedirectionURL');
 	}
 
 	/**
 	 * Redirection after payment processing
 	 */
-	public function doRedirect() {
+	public function doRedirect()
+	{
 		// Put the payment ID in a session
 		Injector::inst()->get(HTTPRequest::class)->getSession()->set('PaymentID', $this->payment->ID);
 		$this->extend('onBeforeRedirect');
@@ -110,7 +116,8 @@ class PaymentProcessor extends Controller {
 	/**
 	 * Save preliminary data to database before processing payment
 	 */
-	public function setup() {
+	public function setup()
+	{
 		$this->payment->Amount->Amount = $this->paymentData['Amount'];
 		$this->payment->Amount->Currency = $this->paymentData['Currency'];
 		$this->payment->Reference = isset($this->paymentData['Reference']) ? $this->paymentData['Reference'] : null;
@@ -130,7 +137,8 @@ class PaymentProcessor extends Controller {
 	 * @see paymentGateway::validate()
 	 * @param Array $data Payment data
 	 */
-	public function capture($data) {
+	public function capture($data)
+	{
 		$this->paymentData = $data;
 
 		// Do pre-processing
@@ -138,7 +146,7 @@ class PaymentProcessor extends Controller {
 
 		// Validate the payment data
 		$validation = $this->gateway->validate($this->paymentData);
-		if (! $validation->isValid()) {
+		if (!$validation->isValid()) {
 			// Use the exception message to identify this is a validation exception
 			// Payment pages can call gateway->getValidationResult() to get all the
 			// validation error messages
@@ -152,7 +160,8 @@ class PaymentProcessor extends Controller {
 	 *
 	 * @return FieldList
 	 */
-	public function getFormFields() {
+	public function getFormFields()
+	{
 		$fieldList = new FieldList();
 
 		$fieldList->push(new NumericField('Amount', 'Amount', ''));
@@ -166,7 +175,8 @@ class PaymentProcessor extends Controller {
 	 *
 	 * @return RequiredFields
 	 */
-	public function getFormRequirements() {
+	public function getFormRequirements()
+	{
 		return new RequiredFields('Amount', 'Currency');
 	}
 }
@@ -174,7 +184,8 @@ class PaymentProcessor extends Controller {
 /**
  * Default class for merchant-hosted controllers
  */
-class PaymentProcessor_MerchantHosted extends PaymentProcessor {
+class PaymentProcessor_MerchantHosted extends PaymentProcessor
+{
 
 	/**
 	 * Process a merchant-hosted payment. Users will remain on the site
@@ -183,7 +194,8 @@ class PaymentProcessor_MerchantHosted extends PaymentProcessor {
 	 * @see PaymentProcessor::capture()
 	 * @param Array $data
 	 */
-	public function capture($data) {
+	public function capture($data)
+	{
 		parent::capture($data);
 
 		$result = $this->gateway->process($this->paymentData);
@@ -198,7 +210,8 @@ class PaymentProcessor_MerchantHosted extends PaymentProcessor {
 	 * 
 	 * @return FieldList
 	 */
-	public function getCreditCardFields() {
+	public function getCreditCardFields()
+	{
 
 		$months = array_combine(range(1, 12), range(1, 12));
 		$years = array_combine(range(date('Y'), date('Y') + 10), range(date('Y'), date('Y') + 10));
@@ -220,7 +233,8 @@ class PaymentProcessor_MerchantHosted extends PaymentProcessor {
 	 * 
 	 * @return FieldList
 	 */
-	public function getFormFields() {
+	public function getFormFields()
+	{
 		$fieldList = parent::getFormFields();
 		$fieldList->merge($this->getCreditCardFields());
 
@@ -232,7 +246,8 @@ class PaymentProcessor_MerchantHosted extends PaymentProcessor {
 	 *
 	 * @return RequiredFields
 	 */
-	public function getFormRequirements() {
+	public function getFormRequirements()
+	{
 		$required = parent::getFormRequirements();
 		$required->appendRequiredFields(new RequiredFields(
 			'FirstName',
@@ -249,7 +264,8 @@ class PaymentProcessor_MerchantHosted extends PaymentProcessor {
 /**
  * Default class for gateway-hosted processors
  */
-class PaymentProcessor_GatewayHosted extends PaymentProcessor {
+class PaymentProcessor_GatewayHosted extends PaymentProcessor
+{
 
 	private static $allowed_actions = array(
 		'complete',
@@ -266,23 +282,24 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor {
 	 * @see PaymentProcessor::capture()
 	 * @param Array $data
 	 */
-	public function capture($data) {
+	public function capture($data)
+	{
 		parent::capture($data);
 
 		// Set the return link
 		$this->gateway->returnURL = Director::absoluteURL(Controller::join_links(
-				$this->Link(),
-				'complete',
-				$this->methodName,
-				$this->payment->ID
+			$this->Link(),
+			'complete',
+			$this->methodName,
+			$this->payment->ID
 		));
-		
+
 		// Set the cancel link
 		$this->gateway->cancelURL = Director::absoluteURL(Controller::join_links(
-				$this->Link(),
-				'cancel',
-				$this->methodName,
-				$this->payment->ID
+			$this->Link(),
+			'cancel',
+			$this->methodName,
+			$this->payment->ID
 		));
 
 		// Send a request to the gateway
@@ -310,7 +327,8 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor {
 	 *
 	 * @param HTTPRequest $request
 	 */
-	public function complete($request) {
+	public function complete($request)
+	{
 		// Reconstruct the payment object
 		$this->payment = Payment::get()->byID($request->param('OtherID'));
 
@@ -325,16 +343,17 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor {
 		// Do redirection
 		$this->doRedirect();
 	}
-	
+
 	/**
 	 * Process request from the external gateway, this action is usually triggered if the payment was cancelled
 	 * and the user was redirected to the cancelURL.
 	 * 
 	 * @param HTTPRequest $request
 	 */
-	public function cancel($request) {
-		
-		
+	public function cancel($request)
+	{
+
+
 		// Reconstruct the payment object
 		$this->payment = Payment::get()->byID($request->param('OtherID'));
 
