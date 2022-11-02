@@ -14,6 +14,7 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\TextField;
+use SwipeStripe\Customer\Customer;
 
 /**
  * Default class for a number of payment controllers/processors.
@@ -339,6 +340,12 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor
 		// Query the gateway for the payment result
 		$result = $this->gateway->check($request);
 		$this->payment->updateStatus($result);
+
+		$customer = Customer::currentUser();
+		if (!empty($customer)) {
+			$customer->CurrentOrderID = 0;
+			$customer->write();
+		}
 
 		// Do redirection
 		$this->doRedirect();
