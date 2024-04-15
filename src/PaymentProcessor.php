@@ -359,8 +359,6 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor
 	 */
 	public function cancel($request)
 	{
-
-
 		// Reconstruct the payment object
 		$this->payment = Payment::get()->byID($request->param('OtherID'));
 
@@ -368,8 +366,11 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor
 		$methodName = $request->param('ID');
 		$this->gateway = PaymentFactory::get_gateway($methodName);
 
-		// The payment result was a failure
-		$this->payment->updateStatus(new PaymentGateway_Failure());
+		// Query the gateway for the payment result
+		$result = $this->gateway->check($request);
+
+		// Update status on the payment 
+		$this->payment->updateStatus($result);
 
 		// Do redirection
 		$this->doRedirect();
