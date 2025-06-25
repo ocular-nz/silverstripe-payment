@@ -12,7 +12,7 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\NumericField;
-use SilverStripe\Forms\RequiredFields;
+use SilverStripe\Forms\Validation\RequiredFieldsValidator;
 use SilverStripe\Forms\TextField;
 use SwipeStripe\Customer\Customer;
 
@@ -174,11 +174,11 @@ class PaymentProcessor extends Controller
 	/**
 	 * Get the form requirements
 	 *
-	 * @return RequiredFields
+	 * @return RequiredFieldsValidator
 	 */
 	public function getFormRequirements()
 	{
-		return new RequiredFields('Amount', 'Currency');
+		return new RequiredFieldsValidator('Amount', 'Currency');
 	}
 }
 
@@ -245,12 +245,12 @@ class PaymentProcessor_MerchantHosted extends PaymentProcessor
 	/**
 	 * Override to add credit card form requirements
 	 *
-	 * @return RequiredFields
+	 * @return RequiredFieldsValidator
 	 */
 	public function getFormRequirements()
 	{
 		$required = parent::getFormRequirements();
-		$required->appendRequiredFields(new RequiredFields(
+		$required->appendRequiredFields(new RequiredFieldsValidator(
 			'FirstName',
 			'LastName',
 			'CardNumber',

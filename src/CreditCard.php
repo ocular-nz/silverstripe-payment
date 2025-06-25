@@ -139,7 +139,7 @@ class CreditCard
 	 * 
 	 * @return ValidationResult
 	 */
-	public function validate()
+	public function validate(): ValidationResult
 	{
 		$this->validateEssentialAttributes();
 		$this->validateCardType();
