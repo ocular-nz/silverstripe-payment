@@ -2,7 +2,7 @@
 
 namespace Payment;
 
-use SilverStripe\ORM\ValidationResult;
+use SilverStripe\Core\Validation\ValidationResult;
 
 /**
  * Object encapsulating credit card details and validation

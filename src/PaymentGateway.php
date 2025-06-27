@@ -8,7 +8,7 @@ use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Core\Config\Config;
-use SilverStripe\ORM\ValidationResult;
+use SilverStripe\Core\Validation\ValidationResult;
 
 /**
  * Parent class for a number of payment gateways
@@ -16,181 +16,179 @@ use SilverStripe\ORM\ValidationResult;
 class PaymentGateway
 {
 
-	/**
-	 * The gateway url
-	 * TODO: Can this just be moved to PaymentGateway_GatewayHosted?
-	 *
-	 * @var String
-	 */
-	public $gatewayURL;
+    /**
+     * The gateway url
+     * TODO: Can this just be moved to PaymentGateway_GatewayHosted?
+     *
+     * @var String
+     */
+    public $gatewayURL;
 
-	/**
-	 * Object holding the gateway validation result
-	 *
-	 * @var ValidationResult
-	 */
-	private $validationResult;
+    /**
+     * Object holding the gateway validation result
+     *
+     * @var ValidationResult
+     */
+    private $validationResult;
 
-	/**
-	 * Object holding the result from gateway
-	 *
-	 * @var PaymentGateway_Result
-	 */
-	private $gatewayResult;
+    /**
+     * Object holding the result from gateway
+     *
+     * @var PaymentGateway_Result
+     */
+    private $gatewayResult;
 
-	/**
-	 * Supported credit card types for this gateway
-	 * 
-	 * @see PaymentGateway::getSupportedCardTypes()
-	 */
-	protected $supportedCardTypes = array();
+    /**
+     * Supported credit card types for this gateway
+     * 
+     * @see PaymentGateway::getSupportedCardTypes()
+     */
+    protected $supportedCardTypes = array();
 
-	/**
-	 * Supported currencies for this gateway
-	 * 
-	 * @see PaymentGateway::getSupportedCurrencies()
-	 */
-	protected $supportedCurrencies = array();
+    /**
+     * Supported currencies for this gateway
+     * 
+     * @see PaymentGateway::getSupportedCurrencies()
+     */
+    protected $supportedCurrencies = array();
 
-	/**
-	 * Array of config for this gateway
-	 *
-	 * @var Array
-	 */
-	protected $config;
+    /**
+     * Array of config for this gateway
+     *
+     * @var Array
+     */
+    protected $config;
 
-	/**
-	 * Get the payment environment.
-	 * The environment is retrieved from the config yaml file.
-	 * If no environment is specified, assume SilverStripe's environment.
-	 */
-	public static function get_environment()
-	{
-		if (Config::inst()->get(PaymentGateway::class, 'environment')) {
-			return Config::inst()->get(PaymentGateway::class, 'environment');
-		} else {
-			return Director::get_environment_type();
-		}
-	}
+    /**
+     * Get the payment environment.
+     * The environment is retrieved from the config yaml file.
+     * If no environment is specified, assume SilverStripe's environment.
+     */
+    public static function get_environment()
+    {
+        if (Config::inst()->get(PaymentGateway::class, 'environment')) {
+            return Config::inst()->get(PaymentGateway::class, 'environment');
+        } else {
+            return Director::get_environment_type();
+        }
+    }
 
-	/**
-	 * Get validation result for this gateway
-	 * 
-	 * @see PaymentGateway::validate()
-	 * @return ValidationResult
-	 */
-	public function getValidationResult()
-	{
-		if (!$this->validationResult) {
-			$this->validationResult = new ValidationResult();
-		}
-		return $this->validationResult;
-	}
+    /**
+     * Get validation result for this gateway
+     * 
+     * @see PaymentGateway::validate()
+     * @return ValidationResult
+     */
+    public function getValidationResult()
+    {
+        if (!$this->validationResult) {
+            $this->validationResult = new ValidationResult();
+        }
+        return $this->validationResult;
+    }
 
-	/**
-	 * Get the YAML config for current environment
-	 * 
-	 * @return Array
-	 */
-	public function getConfig()
-	{
-		if (!$this->config) {
-			$this->config = Config::inst()->get(get_class($this), self::get_environment());
-		}
-		return $this->config;
-	}
+    /**
+     * Get the YAML config for current environment
+     * 
+     * @return Array
+     */
+    public function getConfig()
+    {
+        if (!$this->config) {
+            $this->config = Config::inst()->get(get_class($this), self::get_environment());
+        }
+        return $this->config;
+    }
 
-	/**
-	 * Get the list of credit card types supported by this gateway
-	 *
-	 * @return Array Credit card types
-	 */
-	public function getSupportedCardTypes()
-	{
-		return $this->supportedCardTypes;
-	}
+    /**
+     * Get the list of credit card types supported by this gateway
+     *
+     * @return Array Credit card types
+     */
+    public function getSupportedCardTypes()
+    {
+        return $this->supportedCardTypes;
+    }
 
-	/**
-	 * Get the list of currencies supported by this gateway
-	 *
-	 * @return Array Supported currencies
-	 */
-	public function getSupportedCurrencies()
-	{
-		return $this->supportedCurrencies;
-	}
+    /**
+     * Get the list of currencies supported by this gateway
+     *
+     * @return Array Supported currencies
+     */
+    public function getSupportedCurrencies()
+    {
+        return $this->supportedCurrencies;
+    }
 
-	/**
-	 * Validate the payment data against the gateway-specific requirements
-	 *
-	 * @param Array $data
-	 * @return ValidationResult
-	 */
-	public function validate($data)
-	{
+    /**
+     * Validate the payment data against the gateway-specific requirements
+     *
+     * @param Array $data
+     * @return ValidationResult
+     */
+    public function validate($data)
+    {
 
-		$validationResult = $this->getValidationResult();
+        $validationResult = $this->getValidationResult();
 
-		if (!isset($data['Amount'])) {
-			$validationResult->addError('Payment amount not set');
-		} else if (empty($data['Amount'])) {
-			$validationResult->addError('Payment amount cannot be null');
-		}
+        if (!isset($data['Amount'])) {
+            $validationResult->addError('Payment amount not set');
+        } else if (empty($data['Amount'])) {
+            $validationResult->addError('Payment amount cannot be null');
+        }
 
-		if (!isset($data['Currency'])) {
-			$validationResult->addError('Payment currency not set');
-		} else if (empty($data['Currency'])) {
-			$validationResult->addError('Payment currency cannot be null');
-		} else if (!array_key_exists($data['Currency'], $this->getSupportedCurrencies())) {
-			$validationResult->addError('Currency ' . $data['Currency'] . ' not supported by this gateway');
-		}
+        if (!isset($data['Currency'])) {
+            $validationResult->addError('Payment currency not set');
+        } else if (empty($data['Currency'])) {
+            $validationResult->addError('Payment currency cannot be null');
+        } else if (!array_key_exists($data['Currency'], $this->getSupportedCurrencies())) {
+            $validationResult->addError('Currency ' . $data['Currency'] . ' not supported by this gateway');
+        }
 
-		if (isset($data['CardNumber'])) {
-			$options = array(
-				'firstName' => $data['FirstName'],
-				'lastName' => $data['LastName'],
-				'month' => $data['MonthExpiry'],
-				'year' => $data['YearExpiry'],
-				'type' => $data['CreditCardType'],
-			);
-			if (is_array($data['CardNumber'])) {
-				$options['number'] = implode('', $data['CardNumber']);
-			} else {
-				$options['number'] = $data['CardNumber'];
-			}
+        if (isset($data['CardNumber'])) {
+            $options = array(
+                'firstName' => $data['FirstName'],
+                'lastName' => $data['LastName'],
+                'month' => $data['MonthExpiry'],
+                'year' => $data['YearExpiry'],
+                'type' => $data['CreditCardType'],
+            );
+            if (is_array($data['CardNumber'])) {
+                $options['number'] = implode('', $data['CardNumber']);
+            } else {
+                $options['number'] = $data['CardNumber'];
+            }
 
-			$cc = new CreditCard($options);
-			$validationResult->combineAnd($cc->validate());
-		}
+            $cc = new CreditCard($options);
+            $validationResult->combineAnd($cc->validate());
+        }
 
-		$this->validationResult = $validationResult;
-		return $validationResult;
-	}
+        $this->validationResult = $validationResult;
+        return $validationResult;
+    }
 
-	/**
-	 * Send a request to the gateway to process the payment.
-	 * To be implemented by individual gateways
-	 *
-	 * @param array $data
-	 * @return PaymentGateway_Result
-	 */
-	public function process($data)
-	{
-		return new PaymentGateway_Success();
-	}
+    /**
+     * Send a request to the gateway to process the payment.
+     * To be implemented by individual gateways
+     *
+     * @param array $data
+     * @return PaymentGateway_Result
+     */
+    public function process($data)
+    {
+        return new PaymentGateway_Success();
+    }
 
-	public function check($request)
-	{
-		throw new MethodNotFoundException('Not implemented', __CLASS__, 'check');
-	}
+    public function check($request)
+    {
+        throw new MethodNotFoundException('Not implemented', __CLASS__, 'check');
+    }
 }
 
 /**
  * Parent class for all merchant-hosted gateways
  */
-class PaymentGateway_MerchantHosted extends PaymentGateway
-{
-}
+class PaymentGateway_MerchantHosted extends PaymentGateway {}
 
 /**
  * Parent class for all gateway-hosted gateways
@@ -198,32 +196,32 @@ class PaymentGateway_MerchantHosted extends PaymentGateway
 class PaymentGateway_GatewayHosted extends PaymentGateway
 {
 
-	/**
-	 * The link to return to after processing payment (for gateway-hosted payments only)
-	 *
-	 * @var String
-	 */
-	public $returnURL;
+    /**
+     * The link to return to after processing payment (for gateway-hosted payments only)
+     *
+     * @var String
+     */
+    public $returnURL;
 
-	/**
-	 * The link to return to after cancelling payment (for gateway-hosted payments only)
-	 *
-	 * @var String
-	 */
-	public $cancelURL;
+    /**
+     * The link to return to after cancelling payment (for gateway-hosted payments only)
+     *
+     * @var String
+     */
+    public $cancelURL;
 
-	/**
-	 * Check the payment using gateway lookup API or request
-	 * 
-	 * TODO: Should this return PaymentGateway_Failure by default instead?
-	 *
-	 * @param HTTPRequest $request
-	 * @return PaymentGateway_Result
-	 */
-	public function check($request)
-	{
-		return new PaymentGateway_Success();
-	}
+    /**
+     * Check the payment using gateway lookup API or request
+     * 
+     * TODO: Should this return PaymentGateway_Failure by default instead?
+     *
+     * @param HTTPRequest $request
+     * @return PaymentGateway_Result
+     */
+    public function check($request)
+    {
+        return new PaymentGateway_Success();
+    }
 }
 
 /**
@@ -232,165 +230,165 @@ class PaymentGateway_GatewayHosted extends PaymentGateway
 class PaymentGateway_Result
 {
 
-	/* Constants for gateway result status */
-	const SUCCESS = 'Success';
-	const FAILURE = 'Failure';
-	const INCOMPLETE = 'Incomplete';
+    /* Constants for gateway result status */
+    const SUCCESS = 'Success';
+    const FAILURE = 'Failure';
+    const INCOMPLETE = 'Incomplete';
 
-	/**
-	 * Status of the payment being processed
-	 *
-	 * @var String
-	 */
-	protected $status;
+    /**
+     * Status of the payment being processed
+     *
+     * @var String
+     */
+    protected $status;
 
-	/**
-	 * Array of errors raised by the gateway
-	 * array(ErrorCode => ErrorMessage)
-	 *
-	 * @var array
-	 */
-	protected $errors = array();
+    /**
+     * Array of errors raised by the gateway
+     * array(ErrorCode => ErrorMessage)
+     *
+     * @var array
+     */
+    protected $errors = array();
 
-	/**
-	 * The HTTP response object passed back from the gateway
-	 *
-	 * @var HTTPResponse
-	 */
-	protected $HTTPResponse;
+    /**
+     * The HTTP response object passed back from the gateway
+     *
+     * @var HTTPResponse
+     */
+    protected $HTTPResponse;
 
-	/**
-	 * @param String $status
-	 * @param HTTPResponse $response
-	 * @param Array $errors
-	 */
-	public function __construct($status, $response = null, $errors = null)
-	{
+    /**
+     * @param String $status
+     * @param HTTPResponse $response
+     * @param Array $errors
+     */
+    public function __construct($status, $response = null, $errors = null)
+    {
 
-		if (!$response) {
-			$response = new HTTPResponse('', 200);
-		}
+        if (!$response) {
+            $response = new HTTPResponse('', 200);
+        }
 
-		$this->HTTPResponse = $response;
-		$this->setStatus($status);
+        $this->HTTPResponse = $response;
+        $this->setStatus($status);
 
-		if ($errors) {
-			$this->setErrors($errors);
-		}
-	}
+        if ($errors) {
+            $this->setErrors($errors);
+        }
+    }
 
-	/**
-	 * Set the payment result status.
-	 *
-	 * @param String $status
-	 * @throws Exception when status is invalid
-	 */
-	public function setStatus($status)
-	{
-		if ($status == self::SUCCESS || $status == self::FAILURE || $status == self::INCOMPLETE) {
-			$this->status = $status;
-		} else {
-			throw new Exception("Result status invalid");
-		}
-	}
+    /**
+     * Set the payment result status.
+     *
+     * @param String $status
+     * @throws Exception when status is invalid
+     */
+    public function setStatus($status)
+    {
+        if ($status == self::SUCCESS || $status == self::FAILURE || $status == self::INCOMPLETE) {
+            $this->status = $status;
+        } else {
+            throw new Exception("Result status invalid");
+        }
+    }
 
-	/**
-	 * Get status of this result
-	 * 
-	 * @return String
-	 */
-	public function getStatus()
-	{
-		return $this->status;
-	}
+    /**
+     * Get status of this result
+     * 
+     * @return String
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
 
-	/**
-	 * Get HTTP Response
-	 * 
-	 * @return HTTPResponse
-	 */
-	public function getHTTPResponse()
-	{
-		return $this->HTTPResponse;
-	}
+    /**
+     * Get HTTP Response
+     * 
+     * @return HTTPResponse
+     */
+    public function getHTTPResponse()
+    {
+        return $this->HTTPResponse;
+    }
 
-	/**
-	 * Set the gateway errors
-	 *
-	 * @param array $errors
-	 */
-	public function setErrors($errors)
-	{
+    /**
+     * Set the gateway errors
+     *
+     * @param array $errors
+     */
+    public function setErrors($errors)
+    {
 
-		if (is_string($errors)) {
-			$errors = array($errors);
-		}
+        if (is_string($errors)) {
+            $errors = array($errors);
+        }
 
-		if (is_array($errors)) {
-			$this->errors = $errors;
-		} else {
-			throw new Exception("Gateway errors must be array");
-		}
-	}
+        if (is_array($errors)) {
+            $this->errors = $errors;
+        } else {
+            throw new Exception("Gateway errors must be array");
+        }
+    }
 
-	/**
-	 * Add an error to the error list
-	 *
-	 * @param String $message: The error message
-	 * @param String $code: The error code
-	 */
-	public function addError($message, $code = null)
-	{
-		if ($code) {
-			if (array_key_exists($code, $this->errors)) {
-				throw new Exception("Error code already exists");
-			} else {
-				$this->errors[$code] = $message;
-			}
-		} else {
-			array_push($this->errors, $message);
-		}
-	}
+    /**
+     * Add an error to the error list
+     *
+     * @param String $message: The error message
+     * @param String $code: The error code
+     */
+    public function addError($message, $code = null)
+    {
+        if ($code) {
+            if (array_key_exists($code, $this->errors)) {
+                throw new Exception("Error code already exists");
+            } else {
+                $this->errors[$code] = $message;
+            }
+        } else {
+            array_push($this->errors, $message);
+        }
+    }
 
-	/**
-	 * Get errors
-	 * 
-	 * @return Array
-	 */
-	public function getErrors()
-	{
-		return $this->errors;
-	}
+    /**
+     * Get errors
+     * 
+     * @return Array
+     */
+    public function getErrors()
+    {
+        return $this->errors;
+    }
 
-	/**
-	 * Returns true if successful
-	 * 
-	 * @return Boolean
-	 */
-	public function isSuccess()
-	{
-		return $this->status == self::SUCCESS;
-	}
+    /**
+     * Returns true if successful
+     * 
+     * @return Boolean
+     */
+    public function isSuccess()
+    {
+        return $this->status == self::SUCCESS;
+    }
 
-	/**
-	 * Returns true if failure
-	 * 
-	 * @return Boolean
-	 */
-	public function isFailure()
-	{
-		return $this->status == self::FAILURE;
-	}
+    /**
+     * Returns true if failure
+     * 
+     * @return Boolean
+     */
+    public function isFailure()
+    {
+        return $this->status == self::FAILURE;
+    }
 
-	/**
-	 * Returns true if incomplete
-	 * 
-	 * @return Boolean
-	 */
-	public function isIncomplete()
-	{
-		return $this->status == self::INCOMPLETE;
-	}
+    /**
+     * Returns true if incomplete
+     * 
+     * @return Boolean
+     */
+    public function isIncomplete()
+    {
+        return $this->status == self::INCOMPLETE;
+    }
 }
 
 /**
@@ -399,10 +397,10 @@ class PaymentGateway_Result
 class PaymentGateway_Success extends PaymentGateway_Result
 {
 
-	public function __construct()
-	{
-		parent::__construct(self::SUCCESS);
-	}
+    public function __construct()
+    {
+        parent::__construct(self::SUCCESS);
+    }
 }
 
 /**
@@ -411,10 +409,10 @@ class PaymentGateway_Success extends PaymentGateway_Result
 class PaymentGateway_Failure extends PaymentGateway_Result
 {
 
-	public function __construct($response = null, $errors = null)
-	{
-		parent::__construct(self::FAILURE, $response, $errors);
-	}
+    public function __construct($response = null, $errors = null)
+    {
+        parent::__construct(self::FAILURE, $response, $errors);
+    }
 }
 
 /**
@@ -423,8 +421,8 @@ class PaymentGateway_Failure extends PaymentGateway_Result
 class PaymentGateway_Incomplete extends PaymentGateway_Result
 {
 
-	public function __construct($response = null, $errors = null)
-	{
-		parent::__construct(self::INCOMPLETE, $response, $errors);
-	}
+    public function __construct($response = null, $errors = null)
+    {
+        parent::__construct(self::INCOMPLETE, $response, $errors);
+    }
 }
