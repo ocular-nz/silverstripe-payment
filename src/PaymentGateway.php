@@ -258,6 +258,13 @@ class PaymentGateway_Result
     protected $HTTPResponse;
 
     /**
+     * Additional data from the gateway (e.g., transaction details)
+     *
+     * @var array
+     */
+    protected $additionalData = [];
+
+    /**
      * @param String $status
      * @param HTTPResponse $response
      * @param Array $errors
@@ -388,6 +395,26 @@ class PaymentGateway_Result
     public function isIncomplete()
     {
         return $this->status == self::INCOMPLETE;
+    }
+
+    /**
+     * Set additional data
+     *
+     * @param array $data
+     */
+    public function setAdditionalData($data)
+    {
+        $this->additionalData = $data;
+    }
+
+    /**
+     * Get additional data
+     *
+     * @return array
+     */
+    public function getAdditionalData()
+    {
+        return $this->additionalData;
     }
 }
 

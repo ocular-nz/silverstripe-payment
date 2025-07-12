@@ -67,6 +67,28 @@ class Payment extends DataObject
         $this->Status = $result->getStatus();
         $this->HTTPStatus = (string)$result->getHTTPResponse()->getStatusCode();
 
+        // Handle additional data from PxPost transactions
+        $additionalData = $result->getAdditionalData();
+        if (!empty($additionalData)) {
+            // Update DPS reference if provided
+            if (isset($additionalData['DpsTxnRef'])) {
+                $this->DPSReference = $additionalData['DpsTxnRef'];
+            }
+
+            // Mark saved card as used if this was a successful saved card payment
+            if ($result->isSuccess() && isset($additionalData['BillingId']) && $this->PaidBy()) {
+                $savedCard = \App\Web\SavedCard::get()->filter([
+                    'DpsBillingId' => $additionalData['BillingId'],
+                    'MemberID' => $this->PaidBy()->ID,
+                    'IsActive' => true
+                ])->first();
+
+                if ($savedCard) {
+                    $savedCard->markAsUsed();
+                }
+            }
+        }
+
         $errors = $result->getErrors();
         foreach ($errors as $code => $message) {
             $error = new Payment_Error();

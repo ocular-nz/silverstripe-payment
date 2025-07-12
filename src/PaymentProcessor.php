@@ -306,8 +306,15 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor
         // Send a request to the gateway
         $result = $this->gateway->process($this->paymentData);
 
+
+        $additionalData = $result->getAdditionalData();
+        if ($result->isSuccess() && !empty($additionalData) && !empty($additionalData['DpsTxnRef'])) {
+            // successful payment with stored card
+            $storedCardPaymentSuccess = true;
+        }
+
         // Processing may not get to here if all goes smoothly, customer will be at the 3rd party gateway
-        if ($result && !$result->isSuccess()) {
+        if (!$result->isSuccess() || $storedCardPaymentSuccess) {
 
             // Gateway did not respond or responded with error
             // Need to save the gateway response and save HTTP Status, errors etc. to Payment
