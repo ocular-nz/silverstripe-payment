@@ -306,6 +306,9 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor
         // Send a request to the gateway
         $result = $this->gateway->process($this->paymentData);
 
+        if (!$result) {
+            return;
+        }
 
         $additionalData = $result->getAdditionalData();
         if ($result->isSuccess() && !empty($additionalData) && !empty($additionalData['DpsTxnRef'])) {

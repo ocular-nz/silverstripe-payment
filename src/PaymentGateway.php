@@ -181,7 +181,7 @@ class PaymentGateway
 
     public function check($request)
     {
-        throw new MethodNotFoundException('Not implemented', __CLASS__, 'check');
+        throw new \Exception('Not implemented', __CLASS__);
     }
 }
 
