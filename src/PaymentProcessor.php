@@ -123,7 +123,10 @@ class PaymentProcessor extends Controller
         $this->payment->Amount->Currency = $this->paymentData['Currency'];
         $this->payment->Reference = isset($this->paymentData['Reference']) ? (string)$this->paymentData['Reference'] : '';
         $this->payment->Status = Payment::PENDING;
-        $this->payment->Method = $this->methodName;
+        // Only set Method if it hasn't been set to a user-friendly name already
+        if (!$this->payment->Method || $this->payment->Method === $this->methodName) {
+            $this->payment->Method = $this->methodName;
+        }
         $this->payment->write();
     }
 
