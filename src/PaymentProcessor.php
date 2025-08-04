@@ -23,7 +23,6 @@ use SwipeStripe\Customer\Customer;
  */
 class PaymentProcessor extends Controller
 {
-
     /**
      * The method name of this controller
      *
@@ -111,7 +110,9 @@ class PaymentProcessor extends Controller
         // Put the payment ID in a session
         Injector::inst()->get(HTTPRequest::class)->getSession()->set('PaymentID', $this->payment->ID);
         $this->extend('onBeforeRedirect');
-        Controller::curr()->redirect($this->getRedirectURL());
+        if ($this->getRedirectURL()) {
+            Controller::curr()->redirect($this->getRedirectURL());
+        }
     }
 
     /**
@@ -134,7 +135,7 @@ class PaymentProcessor extends Controller
      * Process a payment request. To be extended by individual processor type
      * If there's no break point (i.e exceptions and errors), this should
      * redirect to the postRedirectURL (merchant-hosted) or the external gateway (gateway-hosted)
-     * 
+     *
      * Data passed in the format (Reference is optional)
      * array('Amount' => 1.00, 'Currency' => 'USD', 'Reference' => 'Ref')
      *
@@ -190,7 +191,6 @@ class PaymentProcessor extends Controller
  */
 class PaymentProcessor_MerchantHosted extends PaymentProcessor
 {
-
     /**
      * Process a merchant-hosted payment. Users will remain on the site
      * until the payment is completed. Redirect to the postRedirectURL afterwards
@@ -211,7 +211,7 @@ class PaymentProcessor_MerchantHosted extends PaymentProcessor
 
     /**
      * Return the form fields for credit data
-     * 
+     *
      * @return FieldList
      */
     public function getCreditCardFields()
@@ -234,7 +234,7 @@ class PaymentProcessor_MerchantHosted extends PaymentProcessor
 
     /**
      * Override to add credit card form fields
-     * 
+     *
      * @return FieldList
      */
     public function getFormFields()
@@ -270,7 +270,6 @@ class PaymentProcessor_MerchantHosted extends PaymentProcessor
  */
 class PaymentProcessor_GatewayHosted extends PaymentProcessor
 {
-
     private static $allowed_actions = array(
         'complete',
         'cancel'
@@ -334,9 +333,9 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor
     }
 
     /**
-     * Process request from the external gateway, this action is usually triggered if the payment was completed on the gateway 
+     * Process request from the external gateway, this action is usually triggered if the payment was completed on the gateway
      * and the user was redirected to the returnURL.
-     * 
+     *
      * The request is passed to the gateway so that it can process the request and use a mechanism to check the status of the payment.
      *
      * @param HTTPRequest $request
@@ -367,7 +366,7 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor
     /**
      * Process request from the external gateway, this action is usually triggered if the payment was cancelled
      * and the user was redirected to the cancelURL.
-     * 
+     *
      * @param HTTPRequest $request
      */
     public function cancel($request)
@@ -382,7 +381,7 @@ class PaymentProcessor_GatewayHosted extends PaymentProcessor
         // Query the gateway for the payment result
         $result = $this->gateway->check($request);
 
-        // Update status on the payment 
+        // Update status on the payment
         $this->payment->updateStatus($result);
 
         // Do redirection
